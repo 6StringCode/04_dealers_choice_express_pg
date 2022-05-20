@@ -4,15 +4,55 @@ const app = express();
 const db = require('./db');
 const { conn, Player, Genre } = db;
 
+app.get('/', async(req, res, next) => {
+    try {
+        const genres = await Genre.findAll({
+            include: [ Player ]
+        });
+
+        // const players = await Player.findAll({
+        //     include: [ Genre ]
+        // });
+        
+        res.send(
+        `<html>
+            <head>
+                <title>Who Are Your Favorite Guitarists?</title>
+            </head>
+            <body>
+                <h1>Who Are Your Favorite Guitarists?</h1>
+                <h2>Click the Genre to make your choice:</h2>
+                ${
+                    genres.map( genre => {
+                        return `
+                        <ul>${ genre.name }
+                            
+                        </ul>
+                        `
+                    }).join('')
+                }
+            </body>
+        </html>`
+        )
+
+    }
+    catch(ex){
+        next(ex);
+    }
+}); 
+
+
+
+
+
 
 const init = async() => {
     try {
         await conn.sync({ force: true });
-
-        //Genres/categories
-        const jazz = await Genre.create({ name: 'jazz'});
-        const classicRockBlues = await Genre.create({ name: 'classicRockBlues'});
-        const modernRock = await Genre.create({ name: 'modernRock'});
+        //Genres
+        const jazz = await Genre.create({ name: 'Jazz'});
+        const classicRockBlues = await Genre.create({ name: 'Classic Rock & Blues'});
+        const modernRock = await Genre.create({ name: 'Modern Rock'});
 
         //Players
         await Player.create({ name: 'Wes Montgomery', genreId: jazz.id });
@@ -27,6 +67,9 @@ const init = async() => {
         await Player.create({ name: 'Eddie Van Halen', genreId: modernRock.id });
         await Player.create({ name: 'Slash', genreId: modernRock.id });
         await Player.create({ name: 'The Edge', genreId: modernRock.id });
+
+        const port = process.env.PORT || 3000;
+        app.listen(port, () => console.log(`listening on port ${port}`));   
     }
 
     catch(ex){
@@ -35,7 +78,3 @@ const init = async() => {
 }
 
 init();
-
-const port = process.env.PORT || 3000;
-
-app.listen(port, () => console.log(`listening on port ${port}`));
