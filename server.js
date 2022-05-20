@@ -4,7 +4,9 @@ const app = express();
 const db = require('./db');
 const { conn, Player, Genre } = db;
 
-app.get('/', async(req, res, next) => {
+app.get('/', (req, res) => res.redirect('/genres'));
+
+app.get('/genres', async(req, res, next) => {
     try {
         const genres = await Genre.findAll({
             include: [ Player ]
@@ -25,7 +27,7 @@ app.get('/', async(req, res, next) => {
                 ${
                     genres.map( genre => {
                         return `
-                        <ul>${ genre.name }
+                        <ul><a href='/genres/${ Player.genreId }'>${ Player.genre.name } </a>
                             
                         </ul>
                         `
@@ -41,7 +43,28 @@ app.get('/', async(req, res, next) => {
     }
 }); 
 
-
+app.get('/genres/:id', async(req, res, next) => {
+    try {
+        const genre = await Genre.findByPk(req.params.id, {
+        include: [ Player ]
+    });
+    res.send(
+        `<html>
+            <head>
+                <title>${ genre.name } Guitarists</title>
+            </head>
+            <body>
+                <h1>${ genre.name } Guitarists</h1>
+                <a href='/genres'>Back to Genres</a>
+            </body>
+        </html>`
+    
+    )
+    }
+    catch(ex){
+        next(ex);
+    }
+});
 
 
 
