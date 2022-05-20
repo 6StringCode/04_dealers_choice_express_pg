@@ -27,7 +27,7 @@ app.get('/genres', async(req, res, next) => {
                 ${
                     genres.map( genre => {
                         return `
-                        <ul><a href='/genres/${ Player.genreId }'>${ Player.genre.name } </a>
+                        <ul><a href='/genres/${ genre.name.id }'>${ genre.name } </a>
                             
                         </ul>
                         `
